@@ -14,9 +14,19 @@ import Animated, {
   useAnimatedStyle,
   withRepeat,
   withTiming,
+  withSequence,
   Easing,
 } from 'react-native-reanimated';
-import Svg, { Ellipse, Path, Circle } from 'react-native-svg';
+import Svg, {
+  Ellipse,
+  Path,
+  Circle,
+  Rect as SvgRect,
+  Defs,
+  RadialGradient,
+  Stop,
+  LinearGradient,
+} from 'react-native-svg';
 import MedievalButton from '../components/ui/MedievalButton';
 import { usePetStore } from '../store/petStore';
 import { colors } from '../theme/colors';
@@ -36,17 +46,30 @@ const StartScreen: React.FC<StartScreenProps> = ({ onStartGame, onLoadGame }) =>
   const hasExistingSave = usePetStore((s) => s.hasExistingSave);
 
   const floatY = useSharedValue(0);
+  const glowPulse = useSharedValue(0);
 
   useEffect(() => {
     floatY.value = withRepeat(
-      withTiming(1, { duration: 2000, easing: Easing.inOut(Easing.sin) }),
+      withTiming(1, { duration: 2500, easing: Easing.inOut(Easing.sin) }),
       -1,
       true,
+    );
+    glowPulse.value = withRepeat(
+      withSequence(
+        withTiming(1, { duration: 2000, easing: Easing.inOut(Easing.sin) }),
+        withTiming(0, { duration: 2000, easing: Easing.inOut(Easing.sin) }),
+      ),
+      -1,
     );
   }, []);
 
   const eggStyle = useAnimatedStyle(() => ({
-    transform: [{ translateY: floatY.value * -8 }],
+    transform: [{ translateY: floatY.value * -12 }],
+  }));
+
+  const glowStyle = useAnimatedStyle(() => ({
+    opacity: 0.3 + glowPulse.value * 0.4,
+    transform: [{ scale: 1 + glowPulse.value * 0.15 }],
   }));
 
   const handleNewGame = () => {
@@ -65,19 +88,40 @@ const StartScreen: React.FC<StartScreenProps> = ({ onStartGame, onLoadGame }) =>
 
   return (
     <View style={styles.container}>
-      <View style={styles.bgGradient} />
+      {/* Background gradient with SVG */}
+      <View style={styles.bgContainer}>
+        <Svg width={width} height={height} style={StyleSheet.absoluteFill}>
+          <Defs>
+            <LinearGradient id="bgGrad" x1="0" y1="0" x2="0" y2="1">
+              <Stop offset="0" stopColor="#0A0814" />
+              <Stop offset="0.4" stopColor="#16102E" />
+              <Stop offset="0.7" stopColor="#1A1040" />
+              <Stop offset="1" stopColor="#0A0814" />
+            </LinearGradient>
+            <RadialGradient id="centerGlow" cx="50%" cy="45%" rx="40%" ry="30%">
+              <Stop offset="0" stopColor={colors.arcaneGlow} stopOpacity="0.12" />
+              <Stop offset="1" stopColor={colors.arcaneGlow} stopOpacity="0" />
+            </RadialGradient>
+          </Defs>
+          <SvgRect x="0" y="0" width={width} height={height} fill="url(#bgGrad)" />
+          <SvgRect x="0" y="0" width={width} height={height} fill="url(#centerGlow)" />
+        </Svg>
+      </View>
 
-      {/* Ambient particles */}
+      {/* Floating ambient particles */}
       <View style={styles.particles}>
-        {[...Array(6)].map((_, i) => (
+        {[...Array(12)].map((_, i) => (
           <View
             key={i}
             style={[
               styles.particle,
               {
-                left: `${10 + Math.random() * 80}%`,
-                top: `${10 + Math.random() * 80}%`,
-                opacity: 0.1 + Math.random() * 0.2,
+                left: `${5 + Math.random() * 90}%`,
+                top: `${5 + Math.random() * 90}%`,
+                opacity: 0.1 + Math.random() * 0.3,
+                width: 2 + Math.random() * 3,
+                height: 2 + Math.random() * 3,
+                borderRadius: 2,
               },
             ]}
           />
@@ -85,32 +129,67 @@ const StartScreen: React.FC<StartScreenProps> = ({ onStartGame, onLoadGame }) =>
       </View>
 
       {/* Title */}
-      <Animated.View entering={FadeInUp.duration(800)} style={styles.titleArea}>
+      <Animated.View entering={FadeInUp.duration(1000)} style={styles.titleArea}>
+        <Text style={styles.titleShadow}>{t('app.title')}</Text>
         <Text style={styles.title}>{t('app.title')}</Text>
+        <View style={styles.titleDivider}>
+          <View style={styles.dividerLine} />
+          <View style={styles.dividerDiamond} />
+          <View style={styles.dividerLine} />
+        </View>
         <Text style={styles.subtitle}>{'~ ' + t('start.choosePet') + ' ~'}</Text>
       </Animated.View>
 
-      {/* Egg */}
+      {/* Egg with glow */}
       <Animated.View
-        entering={FadeIn.delay(300).duration(600)}
+        entering={FadeIn.delay(300).duration(800)}
         style={[styles.eggArea, eggStyle]}
       >
-        <Svg width={140} height={180} viewBox="0 0 140 180">
-          <Ellipse cx="70" cy="100" rx="50" ry="65" fill={colors.dragonPrimary} />
-          <Ellipse cx="70" cy="105" rx="38" ry="50" fill={colors.dragonLight} opacity={0.2} />
-          <Circle cx="55" cy="80" r="5" fill={colors.arcaneGlow} opacity={0.4} />
-          <Circle cx="80" cy="95" r="7" fill={colors.arcaneGlow} opacity={0.3} />
-          <Circle cx="65" cy="115" r="4" fill={colors.arcaneGlow} opacity={0.5} />
+        {/* Glow behind egg */}
+        <Animated.View style={[styles.eggGlow, glowStyle]} />
+
+        <Svg width={160} height={200} viewBox="0 0 160 200">
+          <Defs>
+            <LinearGradient id="eggGrad" x1="0" y1="0" x2="0.3" y2="1">
+              <Stop offset="0" stopColor="#8B3DAE" />
+              <Stop offset="0.5" stopColor="#6B1D7E" />
+              <Stop offset="1" stopColor="#4A0D5E" />
+            </LinearGradient>
+            <RadialGradient id="eggShine" cx="35%" cy="30%" rx="30%" ry="25%">
+              <Stop offset="0" stopColor="white" stopOpacity="0.2" />
+              <Stop offset="1" stopColor="white" stopOpacity="0" />
+            </RadialGradient>
+          </Defs>
+          {/* Egg shadow */}
+          <Ellipse cx="80" cy="185" rx="40" ry="8" fill="#000" opacity={0.3} />
+          {/* Main egg */}
+          <Ellipse cx="80" cy="110" rx="55" ry="72" fill="url(#eggGrad)" />
+          {/* Egg highlight */}
+          <Ellipse cx="80" cy="110" rx="55" ry="72" fill="url(#eggShine)" />
+          {/* Arcane runes */}
+          <Circle cx="60" cy="85" r="6" fill={colors.arcaneGlow} opacity={0.5} />
+          <Circle cx="95" cy="100" r="8" fill={colors.arcaneGlow} opacity={0.35} />
+          <Circle cx="72" cy="125" r="5" fill={colors.arcaneGlow} opacity={0.55} />
+          <Circle cx="88" cy="75" r="3" fill={colors.arcaneGlow} opacity={0.4} />
+          {/* Crack lines */}
           <Path
-            d="M 55 70 L 60 80 L 52 85"
-            stroke={colors.dragonDark}
+            d="M 60 75 L 65 88 L 58 95"
+            stroke={colors.arcaneGlow}
             strokeWidth="1.5"
             fill="none"
+            opacity={0.6}
+          />
+          <Path
+            d="M 92 90 L 88 100 L 95 108"
+            stroke={colors.arcaneGlow}
+            strokeWidth="1"
+            fill="none"
+            opacity={0.4}
           />
         </Svg>
       </Animated.View>
 
-      <Animated.View entering={FadeIn.delay(500).duration(600)}>
+      <Animated.View entering={FadeIn.delay(600).duration(600)}>
         <Text style={styles.dragonName}>{t('start.dragonName')}</Text>
         <Text style={styles.dragonDesc}>{t('start.dragonDesc')}</Text>
       </Animated.View>
@@ -119,21 +198,23 @@ const StartScreen: React.FC<StartScreenProps> = ({ onStartGame, onLoadGame }) =>
       {showNameInput && (
         <Animated.View entering={FadeIn.duration(400)} style={styles.nameArea}>
           <Text style={styles.nameLabel}>{t('start.enterName')}</Text>
-          <TextInput
-            style={styles.nameInput}
-            value={name}
-            onChangeText={setName}
-            placeholder={t('start.defaultName')}
-            placeholderTextColor={colors.textSecondary + '60'}
-            maxLength={20}
-            autoFocus
-          />
+          <View style={styles.nameInputWrapper}>
+            <TextInput
+              style={styles.nameInput}
+              value={name}
+              onChangeText={setName}
+              placeholder={t('start.defaultName')}
+              placeholderTextColor={colors.textSecondary + '50'}
+              maxLength={20}
+              autoFocus
+            />
+          </View>
         </Animated.View>
       )}
 
       {/* Buttons */}
       <Animated.View
-        entering={FadeInUp.delay(700).duration(600)}
+        entering={FadeInUp.delay(800).duration(600)}
         style={styles.buttonsArea}
       >
         {hasExistingSave && (
@@ -144,7 +225,7 @@ const StartScreen: React.FC<StartScreenProps> = ({ onStartGame, onLoadGame }) =>
             variant="gold"
           />
         )}
-        <View style={{ height: 12 }} />
+        <View style={{ height: 14 }} />
         <MedievalButton
           title={showNameInput ? t('start.begin') : t('start.newGame')}
           onPress={handleNewGame}
@@ -161,59 +242,98 @@ const styles = StyleSheet.create({
     flex: 1,
     alignItems: 'center',
     justifyContent: 'center',
-    paddingHorizontal: 20,
+    paddingHorizontal: 24,
   },
-  bgGradient: {
+  bgContainer: {
     ...StyleSheet.absoluteFillObject,
-    backgroundColor: colors.abyss,
   },
   particles: {
     ...StyleSheet.absoluteFillObject,
   },
   particle: {
     position: 'absolute',
-    width: 3,
-    height: 3,
-    borderRadius: 1.5,
     backgroundColor: colors.arcaneGlow,
   },
   titleArea: {
     alignItems: 'center',
-    marginBottom: 20,
+    marginBottom: 16,
   },
   title: {
     fontFamily: 'MedievalSharp',
-    fontSize: 36,
-    color: colors.textGold,
-    textShadowColor: 'rgba(0,0,0,0.8)',
-    textShadowOffset: { width: 2, height: 2 },
-    textShadowRadius: 6,
+    fontSize: 42,
+    color: '#FFD875',
+    textShadowColor: colors.gold + '60',
+    textShadowOffset: { width: 0, height: 0 },
+    textShadowRadius: 12,
+  },
+  titleShadow: {
+    position: 'absolute',
+    fontFamily: 'MedievalSharp',
+    fontSize: 42,
+    color: 'transparent',
+    textShadowColor: 'rgba(0,0,0,0.9)',
+    textShadowOffset: { width: 2, height: 3 },
+    textShadowRadius: 8,
+  },
+  titleDivider: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginTop: 8,
+    marginBottom: 6,
+    width: 180,
+  },
+  dividerLine: {
+    flex: 1,
+    height: 1,
+    backgroundColor: colors.gold + '40',
+  },
+  dividerDiamond: {
+    width: 6,
+    height: 6,
+    backgroundColor: colors.gold + '70',
+    transform: [{ rotate: '45deg' }],
+    marginHorizontal: 8,
   },
   subtitle: {
     fontFamily: 'Cinzel',
     fontSize: 14,
     color: colors.moonlightDim,
-    marginTop: 4,
-    opacity: 0.8,
+    opacity: 0.9,
   },
   eggArea: {
-    marginVertical: 20,
+    marginVertical: 16,
     alignItems: 'center',
+    justifyContent: 'center',
+  },
+  eggGlow: {
+    position: 'absolute',
+    width: 180,
+    height: 180,
+    borderRadius: 90,
+    backgroundColor: colors.arcaneGlow + '20',
+    shadowColor: colors.arcaneGlow,
+    shadowOffset: { width: 0, height: 0 },
+    shadowOpacity: 0.6,
+    shadowRadius: 30,
   },
   dragonName: {
     fontFamily: 'MedievalSharp',
-    fontSize: 22,
+    fontSize: 24,
     color: colors.dragonLight,
     textAlign: 'center',
+    textShadowColor: 'rgba(0,0,0,0.6)',
+    textShadowOffset: { width: 0, height: 1 },
+    textShadowRadius: 4,
   },
   dragonDesc: {
     fontFamily: 'Cinzel',
-    fontSize: 12,
+    fontSize: 13,
     color: colors.textSecondary,
     textAlign: 'center',
-    marginTop: 6,
-    opacity: 0.7,
-    paddingHorizontal: 40,
+    marginTop: 8,
+    opacity: 0.8,
+    paddingHorizontal: 30,
+    lineHeight: 20,
   },
   nameArea: {
     width: '100%',
@@ -224,23 +344,30 @@ const styles = StyleSheet.create({
     fontFamily: 'Cinzel',
     fontSize: 14,
     color: colors.textGold,
-    marginBottom: 8,
+    marginBottom: 10,
+  },
+  nameInputWrapper: {
+    width: '80%',
+    borderRadius: 10,
+    overflow: 'hidden',
+    borderWidth: 1.5,
+    borderColor: colors.gold + '50',
+    shadowColor: colors.gold,
+    shadowOffset: { width: 0, height: 0 },
+    shadowOpacity: 0.2,
+    shadowRadius: 8,
   },
   nameInput: {
-    width: '80%',
-    height: 44,
-    backgroundColor: 'rgba(26, 26, 46, 0.8)',
-    borderWidth: 2,
-    borderColor: colors.gold + '60',
-    borderRadius: 8,
+    height: 48,
+    backgroundColor: 'rgba(20, 18, 40, 0.9)',
     color: colors.textPrimary,
     fontFamily: 'MedievalSharp',
     fontSize: 18,
     textAlign: 'center',
-    paddingHorizontal: 12,
+    paddingHorizontal: 14,
   },
   buttonsArea: {
-    marginTop: 30,
+    marginTop: 28,
     alignItems: 'center',
   },
 });

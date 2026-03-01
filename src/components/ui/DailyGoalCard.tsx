@@ -17,9 +17,11 @@ const DailyGoalCard: React.FC<DailyGoalCardProps> = ({ goals, streak }) => {
     <View style={styles.container}>
       <View style={styles.header}>
         <Text style={styles.title}>{t('daily.goals')}</Text>
-        <Text style={styles.streak}>
-          🔥 {streak} {t('daily.streak')}
-        </Text>
+        <View style={styles.streakBadge}>
+          <Text style={styles.streak}>
+            🔥 {streak}
+          </Text>
+        </View>
       </View>
 
       <View style={styles.progressSummary}>
@@ -33,6 +35,7 @@ const DailyGoalCard: React.FC<DailyGoalCardProps> = ({ goals, streak }) => {
               { width: `${goals.length > 0 ? (completed / goals.length) * 100 : 0}%` },
             ]}
           />
+          <View style={styles.progressShine} />
         </View>
       </View>
 
@@ -54,22 +57,30 @@ const DailyGoalCard: React.FC<DailyGoalCardProps> = ({ goals, streak }) => {
 
 const styles = StyleSheet.create({
   container: {
-    backgroundColor: colors.cardBg,
+    backgroundColor: 'rgba(16, 16, 30, 0.8)',
     borderWidth: 1,
-    borderColor: colors.cardBorder,
-    borderRadius: 10,
-    padding: 10,
+    borderColor: colors.gold + '25',
+    borderRadius: 12,
+    padding: 12,
   },
   header: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    marginBottom: 6,
+    marginBottom: 8,
   },
   title: {
     fontFamily: 'MedievalSharp',
-    fontSize: 14,
+    fontSize: 15,
     color: colors.textGold,
+  },
+  streakBadge: {
+    backgroundColor: 'rgba(212, 90, 42, 0.15)',
+    paddingHorizontal: 8,
+    paddingVertical: 2,
+    borderRadius: 10,
+    borderWidth: 1,
+    borderColor: colors.emberGlow + '30',
   },
   streak: {
     fontFamily: 'Cinzel',
@@ -80,40 +91,54 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     gap: 8,
-    marginBottom: 6,
+    marginBottom: 8,
   },
   progressText: {
     fontFamily: 'Cinzel',
     fontSize: 11,
     color: colors.textSecondary,
+    minWidth: 28,
   },
   progressBar: {
     flex: 1,
-    height: 3,
-    backgroundColor: colors.charcoal,
-    borderRadius: 2,
+    height: 6,
+    backgroundColor: 'rgba(0,0,0,0.4)',
+    borderRadius: 3,
+    overflow: 'hidden',
   },
   progressFill: {
-    height: 3,
+    height: 6,
     backgroundColor: colors.gold,
-    borderRadius: 2,
+    borderRadius: 3,
+  },
+  progressShine: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    height: 3,
+    backgroundColor: 'rgba(255,255,255,0.1)',
+    borderTopLeftRadius: 3,
+    borderTopRightRadius: 3,
   },
   goalRow: {
     flexDirection: 'row',
     alignItems: 'center',
-    paddingVertical: 2,
-    gap: 6,
+    paddingVertical: 3,
+    gap: 8,
   },
   goalCheck: {
-    fontSize: 12,
+    fontSize: 13,
     color: colors.textDim,
+    width: 16,
+    textAlign: 'center',
   },
   goalCheckDone: {
     color: colors.gold,
   },
   goalText: {
     fontFamily: 'Cinzel',
-    fontSize: 10,
+    fontSize: 11,
     color: colors.textSecondary,
     flex: 1,
   },

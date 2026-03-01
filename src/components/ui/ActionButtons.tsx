@@ -39,6 +39,13 @@ const ActionButtons: React.FC<ActionButtonsProps> = ({ onActionPerformed }) => {
 
   return (
     <View style={styles.container}>
+      {/* Decorative top line */}
+      <View style={styles.topLine}>
+        <View style={styles.lineLeft} />
+        <View style={styles.lineDiamond} />
+        <View style={styles.lineRight} />
+      </View>
+
       <ScrollView
         horizontal
         showsHorizontalScrollIndicator={false}
@@ -70,17 +77,39 @@ const ActionButtons: React.FC<ActionButtonsProps> = ({ onActionPerformed }) => {
 
 const styles = StyleSheet.create({
   container: {
-    backgroundColor: 'rgba(0,0,0,0.35)',
-    borderTopWidth: 1,
-    borderTopColor: colors.gold + '40',
-    paddingVertical: 8,
+    backgroundColor: 'rgba(10, 10, 20, 0.6)',
+    paddingVertical: 10,
+    paddingTop: 0,
+  },
+  topLine: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingHorizontal: 20,
+    marginBottom: 10,
+  },
+  lineLeft: {
+    flex: 1,
+    height: 1,
+    backgroundColor: colors.gold + '30',
+  },
+  lineDiamond: {
+    width: 8,
+    height: 8,
+    backgroundColor: colors.gold + '50',
+    transform: [{ rotate: '45deg' }],
+    marginHorizontal: 8,
+  },
+  lineRight: {
+    flex: 1,
+    height: 1,
+    backgroundColor: colors.gold + '30',
   },
   scrollContent: {
-    paddingHorizontal: 12,
-    gap: 8,
+    paddingHorizontal: 14,
+    gap: 10,
   },
   buttonWrapper: {
-    marginRight: 4,
+    marginRight: 2,
   },
 });
 

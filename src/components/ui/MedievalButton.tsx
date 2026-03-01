@@ -21,30 +21,66 @@ const MedievalButton: React.FC<MedievalButtonProps> = ({
   variant = 'primary',
   subtitle,
 }) => {
-  const bgColor =
-    variant === 'gold'
-      ? colors.gold
-      : variant === 'secondary'
-        ? colors.buttonSecondary
-        : colors.buttonPrimary;
+  const isGold = variant === 'gold';
+  const isSecondary = variant === 'secondary';
+
+  const bgColor = isGold
+    ? '#5C4320'
+    : isSecondary
+      ? colors.buttonSecondary
+      : colors.buttonPrimary;
+
+  const borderColor = isGold
+    ? colors.gold
+    : isSecondary
+      ? colors.silver + '50'
+      : colors.arcaneGlow + '50';
+
+  const textColor = isGold
+    ? '#FFD875'
+    : isSecondary
+      ? colors.textPrimary
+      : colors.moonlight;
 
   return (
     <TouchableOpacity
       style={[
         styles.button,
         styles[size],
-        { backgroundColor: disabled ? colors.buttonDisabled : bgColor },
+        {
+          backgroundColor: disabled ? colors.buttonDisabled : bgColor,
+          borderColor: disabled ? colors.buttonDisabled : borderColor,
+        },
         disabled && styles.disabled,
       ]}
       onPress={onPress}
       disabled={disabled}
       activeOpacity={0.7}
     >
-      {icon && <Text style={styles.icon}>{icon}</Text>}
+      {/* Top highlight shine */}
+      <View
+        style={[
+          styles.shine,
+          {
+            backgroundColor: isGold
+              ? 'rgba(255, 216, 117, 0.12)'
+              : isSecondary
+                ? 'rgba(160, 160, 184, 0.08)'
+                : 'rgba(155, 111, 208, 0.1)',
+          },
+        ]}
+      />
+
+      {icon && (
+        <Text style={[styles.icon, size === 'small' && styles.iconSmall]}>
+          {icon}
+        </Text>
+      )}
       <View>
         <Text
           style={[
             styles.text,
+            { color: disabled ? colors.textDim : textColor },
             size === 'small' && styles.smallText,
             size === 'large' && styles.largeText,
           ]}
@@ -59,52 +95,67 @@ const MedievalButton: React.FC<MedievalButtonProps> = ({
 
 const styles = StyleSheet.create({
   button: {
-    borderWidth: 2,
-    borderColor: colors.gold,
-    borderRadius: 8,
+    borderWidth: 1.5,
+    borderRadius: 10,
     alignItems: 'center',
     justifyContent: 'center',
     flexDirection: 'row',
+    overflow: 'hidden',
     shadowColor: '#000',
-    shadowOffset: { width: 1, height: 2 },
+    shadowOffset: { width: 0, height: 3 },
     shadowOpacity: 0.5,
-    shadowRadius: 3,
-    elevation: 4,
+    shadowRadius: 5,
+    elevation: 6,
+  },
+  shine: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    height: '50%',
+    borderTopLeftRadius: 8,
+    borderTopRightRadius: 8,
   },
   small: {
-    paddingVertical: 6,
-    paddingHorizontal: 12,
-    minWidth: 70,
+    paddingVertical: 8,
+    paddingHorizontal: 14,
+    minWidth: 80,
+    borderRadius: 8,
   },
   medium: {
-    paddingVertical: 10,
-    paddingHorizontal: 20,
-    minWidth: 100,
+    paddingVertical: 12,
+    paddingHorizontal: 24,
+    minWidth: 130,
   },
   large: {
-    paddingVertical: 14,
-    paddingHorizontal: 30,
-    minWidth: 200,
+    paddingVertical: 16,
+    paddingHorizontal: 40,
+    minWidth: 240,
   },
   disabled: {
-    opacity: 0.5,
-    borderColor: colors.buttonDisabled,
+    opacity: 0.4,
   },
   icon: {
-    fontSize: 18,
+    fontSize: 20,
+    marginRight: 8,
+  },
+  iconSmall: {
+    fontSize: 16,
     marginRight: 6,
   },
   text: {
     fontFamily: 'MedievalSharp',
     fontSize: 16,
-    color: colors.textGold,
     textAlign: 'center',
+    textShadowColor: 'rgba(0,0,0,0.6)',
+    textShadowOffset: { width: 0, height: 1 },
+    textShadowRadius: 3,
   },
   smallText: {
-    fontSize: 12,
+    fontSize: 13,
   },
   largeText: {
-    fontSize: 20,
+    fontSize: 21,
   },
   subtitle: {
     fontFamily: 'Cinzel',
@@ -112,6 +163,7 @@ const styles = StyleSheet.create({
     color: colors.textSecondary,
     textAlign: 'center',
     opacity: 0.8,
+    marginTop: 1,
   },
 });
 

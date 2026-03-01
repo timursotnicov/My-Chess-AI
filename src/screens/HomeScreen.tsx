@@ -50,7 +50,7 @@ const HomeScreen: React.FC = () => {
     const id = Date.now();
     setFloatingTexts((prev) => [
       ...prev,
-      { id, text: `+${t(`actions.${actionId}`)}!`, color: colors.textGold },
+      { id, text: `+${t(`actions.${actionId}`)}!`, color: '#FFD875' },
     ]);
     setParticles((prev) => [
       ...prev,
@@ -79,6 +79,9 @@ const HomeScreen: React.FC = () => {
     <View style={styles.container}>
       <Background config={bgConfig} />
 
+      {/* Dark vignette overlay for better readability */}
+      <View style={styles.vignette} />
+
       <SafeAreaView style={styles.safeArea}>
         {/* Top bar */}
         <View style={styles.topBar}>
@@ -86,16 +89,20 @@ const HomeScreen: React.FC = () => {
             <Text style={styles.dragonName}>{dragon.name}</Text>
             <View style={styles.topMeta}>
               <TraitBadge trait={dragon.personality.dominantTrait} />
-              <Text style={styles.bondText}>
-                {t(`bond.${bondTier}`)} ({dragon.bond.level})
-              </Text>
+              <View style={styles.bondBadge}>
+                <Text style={styles.bondText}>
+                  {t(`bond.${bondTier}`)} {dragon.bond.level}
+                </Text>
+              </View>
             </View>
           </View>
           <TouchableOpacity
             style={styles.settingsBtn}
             onPress={() => setSettingsVisible(true)}
           >
-            <Text style={styles.settingsIcon}>{'⚙️'}</Text>
+            <View style={styles.settingsCircle}>
+              <Text style={styles.settingsIcon}>{'⚙️'}</Text>
+            </View>
           </TouchableOpacity>
         </View>
 
@@ -115,11 +122,14 @@ const HomeScreen: React.FC = () => {
 
         {/* Dragon area */}
         <View style={styles.dragonArea}>
+          {/* Dragon glow aura */}
+          <View style={styles.dragonGlow} />
+
           <Dragon
             mood={dragon.mood as string}
             currentAction={currentAction}
             onActionAnimationEnd={() => setCurrentAction(null)}
-            size={180}
+            size={200}
           />
 
           {floatingTexts.map((ft) => (
@@ -189,6 +199,13 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: colors.abyss,
   },
+  vignette: {
+    ...StyleSheet.absoluteFillObject,
+    borderWidth: 30,
+    borderColor: 'rgba(0,0,0,0.15)',
+    borderRadius: 0,
+    // This creates a soft vignette effect around edges
+  },
   safeArea: {
     flex: 1,
   },
@@ -197,7 +214,7 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     alignItems: 'flex-start',
     paddingHorizontal: 16,
-    paddingTop: 4,
+    paddingTop: 6,
   },
   topLeft: {
     flex: 1,
@@ -206,39 +223,68 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     gap: 8,
-    marginTop: 2,
+    marginTop: 4,
   },
   dragonName: {
     fontFamily: 'MedievalSharp',
-    fontSize: 22,
-    color: colors.textGold,
-    textShadowColor: 'rgba(0,0,0,0.8)',
-    textShadowOffset: { width: 1, height: 1 },
-    textShadowRadius: 4,
+    fontSize: 24,
+    color: '#FFD875',
+    textShadowColor: 'rgba(0,0,0,0.9)',
+    textShadowOffset: { width: 1, height: 2 },
+    textShadowRadius: 6,
+  },
+  bondBadge: {
+    backgroundColor: 'rgba(200, 168, 78, 0.15)',
+    paddingHorizontal: 8,
+    paddingVertical: 2,
+    borderRadius: 8,
+    borderWidth: 1,
+    borderColor: colors.gold + '30',
   },
   bondText: {
     fontFamily: 'Cinzel',
     fontSize: 11,
-    color: colors.moonlightDim,
+    color: colors.goldDim,
   },
   settingsBtn: {
-    padding: 8,
+    padding: 4,
+  },
+  settingsCircle: {
+    width: 36,
+    height: 36,
+    borderRadius: 18,
+    backgroundColor: 'rgba(10, 10, 20, 0.5)',
+    borderWidth: 1,
+    borderColor: colors.gold + '25',
+    alignItems: 'center',
+    justifyContent: 'center',
   },
   settingsIcon: {
-    fontSize: 24,
+    fontSize: 18,
   },
   statsArea: {
     paddingHorizontal: 16,
-    marginTop: 4,
+    marginTop: 8,
   },
   dragonArea: {
     flex: 1,
     alignItems: 'center',
     justifyContent: 'center',
   },
+  dragonGlow: {
+    position: 'absolute',
+    width: 180,
+    height: 180,
+    borderRadius: 90,
+    backgroundColor: colors.arcaneGlow + '08',
+    shadowColor: colors.arcaneGlow,
+    shadowOffset: { width: 0, height: 0 },
+    shadowOpacity: 0.3,
+    shadowRadius: 40,
+  },
   dailyArea: {
     paddingHorizontal: 16,
-    marginBottom: 4,
+    marginBottom: 6,
   },
 });
 

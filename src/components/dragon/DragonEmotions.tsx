@@ -6,16 +6,29 @@ import Animated, {
   withRepeat,
   withSequence,
   withTiming,
-  withDelay,
   FadeIn,
   FadeOut,
 } from 'react-native-reanimated';
-import { DragonMood } from '../../types';
 
 interface DragonEmotionsProps {
-  mood: DragonMood;
+  mood: string;
   size?: number;
 }
+
+const MOOD_EMOJIS: Record<string, string> = {
+  joyful: '💕',
+  excited: '✨',
+  content: '😊',
+  curious: '❓',
+  proud: '👑',
+  happy: '💕',
+  sad: '💧',
+  anxious: '😰',
+  lonely: '💔',
+  sick: '🤒',
+  sleepy: '💤',
+  sleeping: '💤',
+};
 
 const DragonEmotions: React.FC<DragonEmotionsProps> = ({
   mood,
@@ -37,56 +50,24 @@ const DragonEmotions: React.FC<DragonEmotionsProps> = ({
     transform: [{ translateY: floatY.value }],
   }));
 
-  const renderEmoji = () => {
-    switch (mood) {
-      case 'happy':
-        return (
-          <Animated.Text
-            style={[styles.emoji, floatStyle]}
-            entering={FadeIn}
-            exiting={FadeOut}
-          >
-            {'💕'}
-          </Animated.Text>
-        );
-      case 'sad':
-        return (
-          <Animated.Text
-            style={[styles.emoji, floatStyle]}
-            entering={FadeIn}
-            exiting={FadeOut}
-          >
-            {'💧'}
-          </Animated.Text>
-        );
-      case 'sick':
-        return (
-          <Animated.Text
-            style={[styles.emoji, floatStyle]}
-            entering={FadeIn}
-            exiting={FadeOut}
-          >
-            {'🤒'}
-          </Animated.Text>
-        );
-      case 'sleeping':
-        return (
-          <Animated.Text
-            style={[styles.emoji, styles.sleepEmoji, floatStyle]}
-            entering={FadeIn}
-            exiting={FadeOut}
-          >
-            {'💤'}
-          </Animated.Text>
-        );
-      default:
-        return null;
-    }
-  };
+  const emoji = MOOD_EMOJIS[mood];
+  if (!emoji) return null;
+
+  const isSleeping = mood === 'sleepy' || mood === 'sleeping';
 
   return (
     <View style={[styles.container, { width: size }]} pointerEvents="none">
-      {renderEmoji()}
+      <Animated.Text
+        style={[
+          styles.emoji,
+          isSleeping && styles.sleepEmoji,
+          floatStyle,
+        ]}
+        entering={FadeIn}
+        exiting={FadeOut}
+      >
+        {emoji}
+      </Animated.Text>
     </View>
   );
 };

@@ -329,6 +329,10 @@
     "yes": "Yes",
     "no": "No"
   },
+  "celebration": {
+    "level_up": "Level Up!",
+    "evolution": "Evolution!"
+  },
   "time": {
     "hours": "{{count}}h",
     "minutes": "{{count}}m",

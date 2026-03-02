@@ -8,13 +8,14 @@ import {
   MOOD_TO_ANIMATION,
   ANIMATION_DURATIONS,
 } from './DragonAnimations';
-import { DragonMood, ActionId } from '../../types';
+import { ActionId, DragonStage } from '../../types';
 
 interface DragonProps {
-  mood: DragonMood;
+  mood: string;
   currentAction: ActionId | null;
   onActionAnimationEnd?: () => void;
   size?: number;
+  stage?: DragonStage;
 }
 
 const Dragon: React.FC<DragonProps> = ({
@@ -22,6 +23,7 @@ const Dragon: React.FC<DragonProps> = ({
   currentAction,
   onActionAnimationEnd,
   size = 200,
+  stage = 'adult',
 }) => {
   const [animation, setAnimation] = useState<AnimationState>('idle');
 
@@ -53,6 +55,7 @@ const Dragon: React.FC<DragonProps> = ({
       <DragonSprite
         animation={animation}
         size={size}
+        stage={stage}
       />
     </View>
   );

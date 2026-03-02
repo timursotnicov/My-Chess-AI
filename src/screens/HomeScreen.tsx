@@ -1,4 +1,4 @@
-import React, { useState, useCallback } from 'react';
+import React, { useState, useCallback, useEffect, useRef } from 'react';
 import { View, Text, StyleSheet, Dimensions, TouchableOpacity, Modal } from 'react-native';
 import { useTranslation } from 'react-i18next';
 import { SafeAreaView } from 'react-native-safe-area-context';
@@ -9,6 +9,7 @@ import LevelBadge from '../components/ui/LevelBadge';
 import ActionButtons from '../components/ui/ActionButtons';
 import FloatingText from '../components/effects/FloatingText';
 import ParticleEffect from '../components/effects/ParticleEffect';
+import CelebrationOverlay from '../components/effects/CelebrationOverlay';
 import WelcomeBackModal from '../components/ui/WelcomeBackModal';
 import DailyGoalCard from '../components/ui/DailyGoalCard';
 import TraitBadge from '../components/ui/TraitBadge';
@@ -22,6 +23,7 @@ import { getBackground } from '../data/backgrounds';
 import { getStageForLevel, getStageDefinition } from '../data/levels';
 import { getXPProgress } from '../systems/levelSystem';
 import { getBondTier } from '../systems/bondSystem';
+import { eventBus } from '../systems/eventBus';
 import { ActionId } from '../types';
 import { colors } from '../theme/colors';
 import StatsScreen from './StatsScreen';
@@ -39,6 +41,40 @@ const HomeScreen: React.FC = () => {
   const [particles, setParticles] = useState<{ id: number; x: number; y: number }[]>([]);
   const [settingsVisible, setSettingsVisible] = useState(false);
   const [showWelcomeBack, setShowWelcomeBack] = useState(false);
+  const [celebration, setCelebration] = useState<{
+    visible: boolean;
+    type: 'level_up' | 'evolution';
+    title: string;
+    subtitle?: string;
+  }>({ visible: false, type: 'level_up', title: '' });
+
+  // Listen for level-up and evolution events
+  useEffect(() => {
+    const unsubLevel = eventBus.on('level_up', (event) => {
+      const level = event.payload.level as number;
+      setCelebration({
+        visible: true,
+        type: 'level_up',
+        title: `${t('celebration.level_up')} ${level}!`,
+        subtitle: `+${event.payload.xpGained ?? ''} XP`,
+      });
+    });
+
+    const unsubEvolution = eventBus.on('stage_evolved', (event) => {
+      const newStage = event.payload.newStage as string;
+      setCelebration({
+        visible: true,
+        type: 'evolution',
+        title: t('celebration.evolution'),
+        subtitle: t(`stages.${newStage}`),
+      });
+    });
+
+    return () => {
+      unsubLevel();
+      unsubEvolution();
+    };
+  }, [t]);
 
   useGameLoop();
   useAutoSave();
@@ -130,7 +166,14 @@ const HomeScreen: React.FC = () => {
             currentAction={currentAction}
             onActionAnimationEnd={() => setCurrentAction(null)}
             size={200}
+            stage={stage}
           />
+
+          {/* Platform under dragon */}
+          <View style={styles.platform}>
+            <View style={styles.platformTop} />
+            <View style={styles.platformBase} />
+          </View>
 
           {floatingTexts.map((ft) => (
             <FloatingText
@@ -189,6 +232,15 @@ const HomeScreen: React.FC = () => {
         visible={showWelcomeBack}
         findings={daily.offlineFindings}
         onClose={() => setShowWelcomeBack(false)}
+      />
+
+      {/* Level-up / Evolution celebration */}
+      <CelebrationOverlay
+        visible={celebration.visible}
+        type={celebration.type}
+        title={celebration.title}
+        subtitle={celebration.subtitle}
+        onComplete={() => setCelebration((prev) => ({ ...prev, visible: false }))}
       />
     </View>
   );
@@ -281,6 +333,27 @@ const styles = StyleSheet.create({
     shadowOffset: { width: 0, height: 0 },
     shadowOpacity: 0.3,
     shadowRadius: 40,
+  },
+  platform: {
+    alignItems: 'center',
+    marginTop: -20,
+  },
+  platformTop: {
+    width: 120,
+    height: 8,
+    backgroundColor: 'rgba(80, 60, 40, 0.5)',
+    borderRadius: 60,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.4,
+    shadowRadius: 4,
+  },
+  platformBase: {
+    width: 100,
+    height: 4,
+    backgroundColor: 'rgba(60, 45, 30, 0.3)',
+    borderRadius: 50,
+    marginTop: -1,
   },
   dailyArea: {
     paddingHorizontal: 16,

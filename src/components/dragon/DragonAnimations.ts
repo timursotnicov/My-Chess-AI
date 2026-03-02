@@ -1,5 +1,3 @@
-import { DragonMood } from '../../types';
-
 export type AnimationState =
   | 'idle'
   | 'eating'
@@ -14,17 +12,17 @@ export type AnimationState =
   | 'sick';
 
 export const ANIMATION_DURATIONS: Record<AnimationState, number> = {
-  idle: -1, // loops
+  idle: -1,
   eating: 2000,
   drinking: 1500,
   playing: 3000,
   petting: 2000,
   training: 2500,
   flying: 3000,
-  sleeping: -1, // loops
+  sleeping: -1,
   happy: 2000,
-  sad: -1, // loops
-  sick: -1, // loops
+  sad: -1,
+  sick: -1,
 };
 
 export const ACTION_TO_ANIMATION: Record<string, AnimationState> = {
@@ -39,10 +37,18 @@ export const ACTION_TO_ANIMATION: Record<string, AnimationState> = {
   siege: 'training',
 };
 
-export const MOOD_TO_ANIMATION: Record<DragonMood, AnimationState> = {
+export const MOOD_TO_ANIMATION: Record<string, AnimationState> = {
+  joyful: 'idle',
+  content: 'idle',
+  curious: 'idle',
+  anxious: 'sad',
+  lonely: 'sad',
+  proud: 'idle',
+  sleepy: 'sleeping',
+  sick: 'sick',
+  excited: 'happy',
   happy: 'idle',
   neutral: 'idle',
   sad: 'sad',
-  sick: 'sick',
   sleeping: 'sleeping',
 };

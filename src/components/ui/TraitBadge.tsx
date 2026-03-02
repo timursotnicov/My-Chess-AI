@@ -25,18 +25,20 @@ const styles = StyleSheet.create({
   badge: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: colors.arcaneDim,
-    borderRadius: 12,
+    backgroundColor: 'rgba(74, 45, 112, 0.5)',
+    borderRadius: 10,
     paddingHorizontal: 8,
     paddingVertical: 3,
-    gap: 3,
+    gap: 4,
+    borderWidth: 1,
+    borderColor: colors.arcaneGlow + '30',
   },
   icon: {
-    fontSize: 10,
+    fontSize: 11,
   },
   text: {
     fontFamily: 'Cinzel',
-    fontSize: 9,
+    fontSize: 10,
     color: colors.arcaneGlow,
   },
 });

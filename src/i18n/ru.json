@@ -319,6 +319,10 @@
     "welcomeBack": "С возвращением! Прошло {{time}}.",
     "dragonAsleep": "Ваш дракон уснул от усталости"
   },
+  "celebration": {
+    "level_up": "Новый Уровень!",
+    "evolution": "Эволюция!"
+  },
   "settings": {
     "title": "Настройки",
     "language": "Язык",
